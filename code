@@ -1,0 +1,72 @@
+import sqlite3 as sql
+from prettytable import PrettyTable
+pr = PrettyTable()
+vt = sql.connect("kütüphane.sqlite3")
+
+db = vt.cursor()
+
+def kitapEkle():
+    vt.cursor()
+    kitap = input("kitap adı : ".lower())
+    yazar = input("yazarı : ".lower())
+    raf = input("raf no: ".lower())
+    sira = input("rafdaki sırası : ".lower())
+    db.execute("INSERT INTO kitaplik VALUES ('%s','%s','%s','%s')" % (kitap, yazar, raf, sira))
+    print("işleminiz başarıyla gerçekleşti...")
+    vt.commit()
+def kitapSil():
+    listen = []
+    listen2 = []
+    vt.cursor()
+    kitap = input("silinecek kitap adı : ".lower())
+    db.execute("SELECT kitap_adı FROM kitaplik")
+    veri = db.fetchall()
+    for i in veri:
+        listen.append(i)
+        for p in i:
+            listen2.append(p)
+    if kitap in listen2:
+        db.execute("DELETE FROM kitaplik WHERE (kitap_adı='%s')" % (kitap))
+        print("kitap silindi...")
+    else:
+        print("Kitap Kütüphanemizde Mevcut Değil...")
+    vt.commit()
+def kitapSorgu():
+    listem = []
+    yeni_listem = []
+    db = vt.cursor()
+    kitap = input("kitap adını giriniz : ".lower())
+    db.execute("SELECT * FROM kitaplik WHERE (kitap_adı='%s')" % (kitap))
+    veri = db.fetchall()
+    for i in veri:
+        listem.append(i)
+        for x in i:
+            yeni_listem.append(x)
+    try:
+        pr.field_names = ["KİTAP ADI","KİTAP YAZARI","RAF NO","SIRA NO"]
+        pr.add_row([yeni_listem[0].title(),yeni_listem[1].title(),yeni_listem[2],yeni_listem[3]])
+        print(pr)
+        vt.commit()
+    except IndexError:
+        print("Aradığınız Kitap Kütüphanede Bulunmuyor...")
+
+while True:
+    print("""
+    Kütüphaneye Hoşgeldiniz
+    ***********************
+    [1] Kitap Ekle
+    [2] Kitap Sil
+    [3] Kitap Sorgula
+    """)
+    try:
+        secim = int(input())
+        if secim == 1:
+            kitapEkle()
+        elif secim == 2:
+            kitapSil()
+        elif secim == 3:
+            kitapSorgu()
+        else:
+            print("hatalı tuşlama yaptınız...")
+    except ValueError:
+        print("Sadece 1-3 arası tuşlama yapınız...")
